@@ -1,0 +1,632 @@
+# File: ragflow-k8s.yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ragflow
+---
+# ===================== ConfigMap =====================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ragflow-config
+  namespace: ragflow
+data:
+  # Non-sensitive configurations
+  DOC_ENGINE: "elasticsearch"
+  STACK_VERSION: "8.11.3"
+  ES_HOST: "es01"
+  ES_PORT: "1200"
+  OS_PORT: "1201"
+  OS_HOST: "opensearch01"
+  KIBANA_PORT: "6601"
+  KIBANA_USER: "rag_flow"
+  MEM_LIMIT: "8073741824"
+  INFINITY_HOST: "infinity"
+  INFINITY_THRIFT_PORT: "23817"
+  INFINITY_HTTP_PORT: "23820"
+  INFINITY_PSQL_PORT: "5432"
+  MYSQL_HOST: "mysql"
+  MYSQL_DBNAME: "rag_flow"
+  MYSQL_PORT: "5455"
+  MINIO_HOST: "minio"
+  MINIO_CONSOLE_PORT: "9001"
+  MINIO_PORT: "9000"
+  REDIS_HOST: "redis"
+  REDIS_PORT: "6379"
+  SVR_HTTP_PORT: "9380"
+  RAGFLOW_IMAGE: "infiniflow/ragflow:v0.19.1-slim"
+  TIMEZONE: "Asia/Shanghai"
+  # Other non-sensitive configs
+  bootstrap.memory_lock: "false"
+  discovery.type: "single-node"
+  xpack.security.enabled: "true"
+  xpack.security.http.ssl.enabled: "false"
+  xpack.security.transport.ssl.enabled: "false"
+  cluster.routing.allocation.disk.watermark.low: "5gb"
+  cluster.routing.allocation.disk.watermark.high: "3gb"
+  cluster.routing.allocation.disk.watermark.flood_stage: "2gb"
+  plugins.security.disabled: "false"
+  plugins.security.ssl.http.enabled: "false"
+  plugins.security.ssl.transport.enabled: "true"
+  http.port: "9201"
+  infinity_conf.toml: |
+    [general]
+    version                  = "0.6.0"
+    time_zone                = "utc-8"
+    
+    [network]
+    server_address           = "0.0.0.0"
+    postgres_port            = 5432
+    http_port                = 23820
+    client_port              = 23817
+    connection_pool_size     = 128
+    
+    [log]
+    log_filename             = "infinity.log"
+    log_dir                  = "/var/infinity/log"
+    log_to_stdout            = true
+    log_file_max_size        = "100MB"
+    log_file_rotate_count    = 10
+    log_level                = "info"
+    
+    [storage]
+    persistence_dir         = "/var/infinity/persistence"
+    data_dir                = "/var/infinity/data"
+    optimize_interval        = "10s"
+    cleanup_interval         = "60s"
+    compact_interval         = "120s"
+    storage_type             = "local"
+    mem_index_capacity       = 65536
+    
+    [buffer]
+    buffer_manager_size      = "8GB"
+    lru_num                  = 7
+    temp_dir                 = "/var/infinity/tmp"
+    result_cache             = "off"
+    memindex_memory_quota    = "4GB"
+    
+    [wal]
+    wal_dir                       = "/var/infinity/wal"
+    full_checkpoint_interval      = "30s"
+    delta_checkpoint_interval     = "5s"
+    wal_compact_threshold         = "1GB"
+    wal_flush                     = "only_write"
+    
+    [resource]
+    resource_dir                  = "/var/infinity/resource"
+  init.sql: |
+    CREATE DATABASE IF NOT EXISTS rag_flow;
+    USE rag_flow;
+---
+# ===================== Secrets =====================
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ragflow-secrets
+  namespace: ragflow
+type: Opaque
+stringData:
+  ELASTIC_PASSWORD: "infini_rag_flow"
+  OPENSEARCH_PASSWORD: "infini_rag_flow_OS_01"
+  MYSQL_PASSWORD: "infini_rag_flow"
+  MINIO_USER: "rag_flow"
+  MINIO_PASSWORD: "infini_rag_flow"
+  REDIS_PASSWORD: "infini_rag_flow"
+---
+# ===================== Persistent Volume Claims =====================
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: esdata01
+  namespace: ragflow
+spec:
+  accessModes: [ "ReadWriteOnce" ]
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: osdata01
+  namespace: ragflow
+spec:
+  accessModes: [ "ReadWriteOnce" ]
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: infinity-data
+  namespace: ragflow
+spec:
+  accessModes: [ "ReadWriteOnce" ]
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-data
+  namespace: ragflow
+spec:
+  accessModes: [ "ReadWriteOnce" ]
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: minio-data
+  namespace: ragflow
+spec:
+  accessModes: [ "ReadWriteOnce" ]
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: redis-data
+  namespace: ragflow
+spec:
+  accessModes: [ "ReadWriteOnce" ]
+  resources:
+    requests:
+      storage: 1Gi
+---
+# ===================== Elasticsearch =====================
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: ragflow-es-01
+  namespace: ragflow
+spec:
+  serviceName: es-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app: elasticsearch
+  template:
+    metadata:
+      labels:
+        app: elasticsearch
+    spec:
+      containers:
+      - name: es01
+        image: elasticsearch:8.11.3
+        env:
+        - name: node.name
+          value: es01
+        - name: ELASTIC_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: ragflow-secrets
+              key: ELASTIC_PASSWORD
+        - name: TZ
+          valueFrom:
+            configMapKeyRef:
+              name: ragflow-config
+              key: TIMEZONE
+        # Other environment variables
+        - name: bootstrap.memory_lock
+          valueFrom:
+            configMapKeyRef:
+              name: ragflow-config
+              key: bootstrap.memory_lock
+        - name: discovery.type
+          valueFrom:
+            configMapKeyRef:
+              name: ragflow-config
+              key: discovery.type
+        # Add other env vars similarly...
+        ports:
+        - containerPort: 9200
+        volumeMounts:
+        - name: data
+          mountPath: /usr/share/elasticsearch/data
+        resources:
+          limits:
+            memory: "8Gi"
+        livenessProbe:
+          exec:
+            command: ["curl", "http://localhost:9200"]
+          initialDelaySeconds: 60
+          periodSeconds: 10
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: esdata01
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: es-service
+  namespace: ragflow
+spec:
+  selector:
+    app: elasticsearch
+  ports:
+    - protocol: TCP
+      port: 9200
+      targetPort: 9200
+      nodePort: 31200
+  type: NodePort
+---
+# ===================== OpenSearch =====================
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: ragflow-opensearch-01
+  namespace: ragflow
+spec:
+  serviceName: opensearch-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app: opensearch
+  template:
+    metadata:
+      labels:
+        app: opensearch
+    spec:
+      containers:
+      - name: opensearch01
+        image: hub.icert.top/opensearchproject/opensearch:2.19.1
+        env:
+        - name: node.name
+          value: opensearch01
+        - name: OPENSEARCH_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: ragflow-secrets
+              key: OPENSEARCH_PASSWORD
+        - name: OPENSEARCH_INITIAL_ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: ragflow-secrets
+              key: OPENSEARCH_PASSWORD
+        - name: TZ
+          valueFrom:
+            configMapKeyRef:
+              name: ragflow-config
+              key: TIMEZONE
+        # Add other env vars...
+        ports:
+        - containerPort: 9201
+        volumeMounts:
+        - name: data
+          mountPath: /usr/share/opensearch/data
+        resources:
+          limits:
+            memory: "8Gi"
+        livenessProbe:
+          exec:
+            command: ["curl", "http://localhost:9201"]
+          initialDelaySeconds: 60
+          periodSeconds: 10
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: osdata01
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: opensearch-service
+  namespace: ragflow
+spec:
+  selector:
+    app: opensearch
+  ports:
+    - protocol: TCP
+      port: 9201
+      targetPort: 9201
+      nodePort: 31201
+  type: NodePort
+---
+# ===================== Infinity =====================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ragflow-infinity
+  namespace: ragflow
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: infinity
+  template:
+    metadata:
+      labels:
+        app: infinity
+    spec:
+      containers:
+      - name: infinity
+        image: infiniflow/infinity:v0.6.0-dev3
+        command: ["infinity", "-f", "/etc/infinity/infinity_conf.toml"]
+        ports:
+        - containerPort: 23817
+        - containerPort: 23820
+        - containerPort: 5432
+        env:
+        - name: TZ
+          valueFrom:
+            configMapKeyRef:
+              name: ragflow-config
+              key: TIMEZONE
+        volumeMounts:
+        - name: data
+          mountPath: /var/infinity
+        - name: config
+          mountPath: /etc/infinity/infinity_conf.toml
+          subPath: infinity_conf.toml
+        resources:
+          limits:
+            memory: "8Gi"
+        livenessProbe:
+          exec:
+            command: ["curl", "http://localhost:23820/admin/node/current"]
+          initialDelaySeconds: 60
+          periodSeconds: 10
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: infinity-data
+      - name: config
+        configMap:
+          name: ragflow-config
+          items:
+          - key: infinity_conf.toml
+            path: infinity_conf.toml
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: infinity-service
+  namespace: ragflow
+spec:
+  selector:
+    app: infinity
+  ports:
+    - name: thrift
+      protocol: TCP
+      port: 23817
+      targetPort: 23817
+    - name: http
+      protocol: TCP
+      port: 23820
+      targetPort: 23820
+    - name: psql
+      protocol: TCP
+      port: 5432
+      targetPort: 5432
+  type: ClusterIP
+---
+# ===================== MySQL =====================
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: ragflow-mysql
+  namespace: ragflow
+spec:
+  serviceName: mysql-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+      - name: mysql
+        image: mysql:8.0.39
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: ragflow-secrets
+              key: MYSQL_PASSWORD
+        - name: TZ
+          valueFrom:
+            configMapKeyRef:
+              name: ragflow-config
+              key: TIMEZONE
+        args: [
+          "--max_connections=1000",
+          "--character-set-server=utf8mb4",
+          "--collation-server=utf8mb4_unicode_ci",
+          "--default-authentication-plugin=mysql_native_password",
+          "--tls_version=TLSv1.2,TLSv1.3",
+          "--init-file=/docker-entrypoint-initdb.d/init.sql",
+          "--binlog_expire_logs_seconds=604800"
+        ]
+        ports:
+        - containerPort: 3306
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/mysql
+        - name: init-script
+          mountPath: /docker-entrypoint-initdb.d/init.sql
+          subPath: init.sql
+        livenessProbe:
+          exec:
+            command:
+            - mysqladmin
+            - ping
+            - "-uroot"
+            - "-p$(MYSQL_ROOT_PASSWORD)"
+          initialDelaySeconds: 30
+          periodSeconds: 10
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: mysql-data
+      - name: init-script
+        configMap:
+          name: ragflow-config
+          items:
+          - key: init.sql
+            path: init.sql
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-service
+  namespace: ragflow
+spec:
+  selector:
+    app: mysql
+  ports:
+    - protocol: TCP
+      port: 3306
+      targetPort: 3306
+      nodePort: 33306
+  type: NodePort
+---
+# ===================== MinIO =====================
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: ragflow-minio
+  namespace: ragflow
+spec:
+  serviceName: minio-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app: minio
+  template:
+    metadata:
+      labels:
+        app: minio
+    spec:
+      containers:
+      - name: minio
+        image: quay.io/minio/minio:RELEASE.2025-06-13T11-33-47Z
+        args: ["server", "--console-address", ":9001", "/data"]
+        env:
+        - name: MINIO_ROOT_USER
+          valueFrom:
+            secretKeyRef:
+              name: ragflow-secrets
+              key: MINIO_USER
+        - name: MINIO_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: ragflow-secrets
+              key: MINIO_PASSWORD
+        - name: TZ
+          valueFrom:
+            configMapKeyRef:
+              name: ragflow-config
+              key: TIMEZONE
+        ports:
+        - containerPort: 9000
+        - containerPort: 9001
+        volumeMounts:
+        - name: data
+          mountPath: /data
+        livenessProbe:
+          exec:
+            command: ["curl", "-f", "http://localhost:9000/minio/health/live"]
+          initialDelaySeconds: 30
+          periodSeconds: 30
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: minio-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: minio-service
+  namespace: ragflow
+spec:
+  selector:
+    app: minio
+  ports:
+    - name: api
+      protocol: TCP
+      port: 9000
+      targetPort: 9000
+      nodePort: 30900
+    - name: console
+      protocol: TCP
+      port: 9001
+      targetPort: 9001
+      nodePort: 30901
+  type: NodePort
+---
+# ===================== Redis =====================
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: ragflow-redis
+  namespace: ragflow
+spec:
+  serviceName: redis-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: redis
+        image: valkey/valkey:8
+        args: [
+          "redis-server",
+          "--requirepass", "$(REDIS_PASSWORD)",
+          "--maxmemory", "128mb",
+          "--maxmemory-policy", "allkeys-lru"
+        ]
+        env:
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: ragflow-secrets
+              key: REDIS_PASSWORD
+        ports:
+        - containerPort: 6379
+        volumeMounts:
+        - name: data
+          mountPath: /data
+        livenessProbe:
+          exec:
+            command:
+            - redis-cli
+            - "-a"
+            - "$(REDIS_PASSWORD)"
+            - "ping"
+          initialDelaySeconds: 10
+          periodSeconds: 5
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: redis-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-service
+  namespace: ragflow
+spec:
+  selector:
+    app: redis
+  ports:
+    - protocol: TCP
+      port: 6379
+      targetPort: 6379
+      nodePort: 30637
+  type: NodePort
