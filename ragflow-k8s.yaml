@@ -1,15 +1,8 @@
-# File: ragflow-k8s.yaml
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: ragflow
----
 # ===================== ConfigMap =====================
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: ragflow-config
-  namespace: ragflow
 data:
   # Non-sensitive configurations
   DOC_ENGINE: "elasticsearch"
@@ -103,7 +96,6 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: ragflow-secrets
-  namespace: ragflow
 type: Opaque
 stringData:
   ELASTIC_PASSWORD: "infini_rag_flow"
@@ -118,7 +110,6 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: esdata01
-  namespace: ragflow
 spec:
   accessModes: [ "ReadWriteOnce" ]
   resources:
@@ -129,7 +120,6 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: osdata01
-  namespace: ragflow
 spec:
   accessModes: [ "ReadWriteOnce" ]
   resources:
@@ -140,7 +130,6 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: infinity-data
-  namespace: ragflow
 spec:
   accessModes: [ "ReadWriteOnce" ]
   resources:
@@ -151,7 +140,6 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: mysql-data
-  namespace: ragflow
 spec:
   accessModes: [ "ReadWriteOnce" ]
   resources:
@@ -162,7 +150,6 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: minio-data
-  namespace: ragflow
 spec:
   accessModes: [ "ReadWriteOnce" ]
   resources:
@@ -173,7 +160,6 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: redis-data
-  namespace: ragflow
 spec:
   accessModes: [ "ReadWriteOnce" ]
   resources:
@@ -185,7 +171,6 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: ragflow-es-01
-  namespace: ragflow
 spec:
   serviceName: es-service
   replicas: 1
@@ -247,7 +232,6 @@ apiVersion: v1
 kind: Service
 metadata:
   name: es-service
-  namespace: ragflow
 spec:
   selector:
     app: elasticsearch
@@ -263,7 +247,6 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: ragflow-opensearch-01
-  namespace: ragflow
 spec:
   serviceName: opensearch-service
   replicas: 1
@@ -319,7 +302,6 @@ apiVersion: v1
 kind: Service
 metadata:
   name: opensearch-service
-  namespace: ragflow
 spec:
   selector:
     app: opensearch
@@ -335,7 +317,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: ragflow-infinity
-  namespace: ragflow
 spec:
   replicas: 1
   selector:
@@ -389,7 +370,6 @@ apiVersion: v1
 kind: Service
 metadata:
   name: infinity-service
-  namespace: ragflow
 spec:
   selector:
     app: infinity
@@ -413,7 +393,6 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: ragflow-mysql
-  namespace: ragflow
 spec:
   serviceName: mysql-service
   replicas: 1
@@ -480,7 +459,6 @@ apiVersion: v1
 kind: Service
 metadata:
   name: mysql-service
-  namespace: ragflow
 spec:
   selector:
     app: mysql
@@ -496,7 +474,6 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: ragflow-minio
-  namespace: ragflow
 spec:
   serviceName: minio-service
   replicas: 1
@@ -548,7 +525,6 @@ apiVersion: v1
 kind: Service
 metadata:
   name: minio-service
-  namespace: ragflow
 spec:
   selector:
     app: minio
@@ -570,7 +546,6 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: ragflow-redis
-  namespace: ragflow
 spec:
   serviceName: redis-service
   replicas: 1
@@ -620,7 +595,6 @@ apiVersion: v1
 kind: Service
 metadata:
   name: redis-service
-  namespace: ragflow
 spec:
   selector:
     app: redis
