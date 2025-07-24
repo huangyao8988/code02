@@ -82,7 +82,7 @@ spec:
       - name: esdata01
         persistentVolumeClaim:
           claimName: esdata01-pvc
-      restartPolicy: OnFailure
+      restartPolicy: Always
 ---
 # PersistentVolumeClaim for Elasticsearch data
 apiVersion: v1
