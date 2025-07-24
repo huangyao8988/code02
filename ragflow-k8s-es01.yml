@@ -57,7 +57,7 @@ spec:
             memory: "8Gi"
           requests:
             memory: "4Gi"
-            cpu: "1"
+            #cpu: "1"
         readinessProbe:
           httpGet:
             path: /
@@ -75,9 +75,14 @@ spec:
           timeoutSeconds: 10
           failureThreshold: 50
         securityContext:
-          privileged: true
-          capabilities:
-            add: ["IPC_LOCK"]
+          # 完全移除 capabilities 添加
+          #capabilities:
+          #  add: ["IPC_LOCK"]
+          privileged: false  # 必须设置为 false
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          seccompProfile:
+            type: RuntimeDefault
       volumes:
       - name: esdata01
         persistentVolumeClaim:
