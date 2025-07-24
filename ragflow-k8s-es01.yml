@@ -1,0 +1,113 @@
+---
+# Kubernetes StatefulSet for Elasticsearch
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: ragflow-es-01
+  labels:
+    app: elasticsearch
+    component: es01
+spec:
+  serviceName: es-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app: elasticsearch
+      component: es01
+  template:
+    metadata:
+      labels:
+        app: elasticsearch
+        component: es01
+    spec:
+      containers:
+      - name: es01
+        image: elasticsearch:8.11.3
+        env:
+        - name: node.name
+          value: "es01"
+        - name: ELASTIC_PASSWORD
+          value: "infini_rag_flow"
+        - name: bootstrap.memory_lock
+          value: "false"
+        - name: discovery.type
+          value: "single-node"
+        - name: xpack.security.enabled
+          value: "true"
+        - name: xpack.security.http.ssl.enabled
+          value: "false"
+        - name: xpack.security.transport.ssl.enabled
+          value: "false"
+        - name: cluster.routing.allocation.disk.watermark.low
+          value: "5gb"
+        - name: cluster.routing.allocation.disk.watermark.high
+          value: "3gb"
+        - name: cluster.routing.allocation.disk.watermark.flood_stage
+          value: "2gb"
+        - name: TZ
+          value: "Asia/Shanghai"
+        ports:
+        - containerPort: 9200
+          name: http
+        volumeMounts:
+        - name: esdata01
+          mountPath: /usr/share/elasticsearch/data
+        resources:
+          limits:
+            memory: "8Gi"
+          requests:
+            memory: "4Gi"
+            cpu: "1"
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 9200
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 10
+          failureThreshold: 120
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 9200 
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 10
+          failureThreshold: 50
+        securityContext:
+          privileged: true
+          capabilities:
+            add: ["IPC_LOCK"]
+      volumes:
+      - name: esdata01
+        persistentVolumeClaim:
+          claimName: esdata01-pvc
+      restartPolicy: OnFailure
+---
+# PersistentVolumeClaim for Elasticsearch data
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: esdata01-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi  # 建议根据实际需求调整大小
+---
+# Service to expose Elasticsearch
+apiVersion: v1
+kind: Service
+metadata:
+  name: es-service
+spec:
+  selector:
+    app: elasticsearch
+    component: es01
+  ports:
+    - protocol: TCP
+      port: 9200
+      targetPort: 9200
+      nodePort: 31200  # 外部访问端口 (1200->31200 避免低端口限制)
+  type: NodePort
