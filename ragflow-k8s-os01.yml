@@ -51,6 +51,13 @@ spec:
       labels:
         app: opensearch
     spec:
+      initContainers:
+      - name: fix-data-permission
+        image: busybox:1.35
+        command: ['sh', '-c', 'chown -R 1000:1000 /usr/share/opensearch/data']
+        volumeMounts:
+        - name: opensearch-data
+          mountPath: /usr/share/opensearch/data
       containers:
       - name: opensearch
         image: hub.icert.top/opensearchproject/opensearch:2.19.1
@@ -148,18 +155,18 @@ spec:
         readinessProbe:
           exec:
             command:
-            - curl
-            - -k
-            - -u "admin:$(OPENSEARCH_PASSWORD)"  # 注入密码
-            - http://localhost:9201
+            - sh
+            - -c
+            - "curl -k -u admin:$OPENSEARCH_PASSWORD http://localhost:9201"
           initialDelaySeconds: 30
           periodSeconds: 10
           timeoutSeconds: 5
         securityContext:
           runAsUser: 1000
           runAsGroup: 1000
-          runAsNonRoot: true  # 显式声明非root
-          allowPrivilegeEscalation: false  # 禁止提权
+          fsGroup: 1000  # 新增此行确保文件组权限
+          runAsNonRoot: true
+          allowPrivilegeEscalation: false
           privileged: false
           capabilities:
             drop: ["ALL"]  # 丢弃所有权限
