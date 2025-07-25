@@ -58,6 +58,8 @@ spec:
         - containerPort: 9201
         env:
           # 从 ConfigMap 注入非敏感变量
+          - name: OPENSEARCH_USER
+            value: "admin"
           - name: node.name
             valueFrom:
               configMapKeyRef:
@@ -133,11 +135,10 @@ spec:
           requests:
             memory: "8073741824"
         livenessProbe:
-          exec:
-            command:
-            - curl
-            - -k
-            - http://localhost:9201
+          command:
+            - "sh"
+            - "-c"
+            - "curl -u $OPENSEARCH_USER:$OPENSEARCH_PASSWORD http://localhost:9201"
           initialDelaySeconds: 60
           periodSeconds: 10
           timeoutSeconds: 5
