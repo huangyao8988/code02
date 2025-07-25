@@ -131,18 +131,18 @@ spec:
           mountPath: /usr/share/opensearch/data
         resources:
           limits:
-            cpu: "4"
-            memory: "8073741824"  # 从 .env 的 MEM_LIMIT
+            cpu: "2"
+            memory: "8Gi"  # 从 .env 的 MEM_LIMIT
           requests:
-            cpu: "1"
-            memory: "8073741824"
+            cpu: "0.5"
+            memory: "4Gi"
         livenessProbe:
           exec:  
             command:
               - "sh"
               - "-c"
-              - "curl -u $OPENSEARCH_USER:$OPENSEARCH_PASSWORD http://localhost:9201"
-          initialDelaySeconds: 60
+              - "curl -s -k -u admin:$OPENSEARCH_PASSWORD http://localhost:9201"
+          initialDelaySeconds: 100
           periodSeconds: 10
           timeoutSeconds: 5
         readinessProbe:
@@ -155,9 +155,11 @@ spec:
           periodSeconds: 10
           timeoutSeconds: 5
         securityContext:
+          runAsUser: 1000
+          runAsGroup: 1000
+          privileged: false
           capabilities:
-            add:
-              - IPC_LOCK
+            add: ["IPC_LOCK"]
       volumes:
       - name: opensearch-data
         persistentVolumeClaim:
