@@ -174,4 +174,4 @@ spec:
     - protocol: TCP
       port: 9201
       targetPort: 9201
-      nodePort: 31201  # 外部访问端口（范围 30000-32767）
+      nodePort: 31202  # 外部访问端口（范围 30000-32767）
