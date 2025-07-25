@@ -150,6 +150,7 @@ spec:
             command:
             - curl
             - -k
+            - -u "admin:$(OPENSEARCH_PASSWORD)"  # 注入密码
             - http://localhost:9201
           initialDelaySeconds: 30
           periodSeconds: 10
@@ -157,9 +158,13 @@ spec:
         securityContext:
           runAsUser: 1000
           runAsGroup: 1000
+          runAsNonRoot: true  # 显式声明非root
+          allowPrivilegeEscalation: false  # 禁止提权
           privileged: false
           capabilities:
-            add: ["IPC_LOCK"]
+            drop: ["ALL"]  # 丢弃所有权限
+          seccompProfile:
+            type: RuntimeDefault  # 启用默认seccomp
       volumes:
       - name: opensearch-data
         persistentVolumeClaim:
