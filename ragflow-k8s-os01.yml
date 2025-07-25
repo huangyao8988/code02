@@ -137,10 +137,11 @@ spec:
             cpu: "1"
             memory: "8073741824"
         livenessProbe:
-          command:
-            - "sh"
-            - "-c"
-            - "curl -u $OPENSEARCH_USER:$OPENSEARCH_PASSWORD http://localhost:9201"
+          exec:  
+            command:
+              - "sh"
+              - "-c"
+              - "curl -u $OPENSEARCH_USER:$OPENSEARCH_PASSWORD http://localhost:9201"
           initialDelaySeconds: 60
           periodSeconds: 10
           timeoutSeconds: 5
