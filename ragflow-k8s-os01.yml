@@ -51,6 +51,8 @@ spec:
       labels:
         app: opensearch
     spec:
+      securityContext:
+        fsGroup: 1000  # 关键权限修复
       initContainers:
       - name: fix-data-permission
         image: busybox:1.35
@@ -164,7 +166,6 @@ spec:
         securityContext:
           runAsUser: 1000
           runAsGroup: 1000
-          fsGroup: 1000  # 新增此行确保文件组权限
           runAsNonRoot: true
           allowPrivilegeEscalation: false
           privileged: false
