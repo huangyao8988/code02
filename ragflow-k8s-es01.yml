@@ -20,6 +20,15 @@ spec:
         app: elasticsearch
         component: es01
     spec:
+      initContainers:
+      - name: fix-permissions
+        image: busybox
+        command: ['sh', '-c', 'chown -R 1000:0 /usr/share/elasticsearch/data']
+        volumeMounts:
+        - name: esdata01  # 必须与主容器挂载名一致
+          mountPath: /usr/share/elasticsearch/data
+      securityContext:
+        fsGroup: 0  # 确保挂载卷归 root 组所有
       containers:
       - name: es01
         image: elasticsearch:8.11.3
@@ -62,6 +71,9 @@ spec:
           httpGet:
             path: /
             port: 9200
+            httpHeaders:
+            - name: Authorization
+              value: Basic ZWxhc3RpYzppbmZpbmlfcmFnX2Zsb3c=  # elastic:infini_rag_flow
           initialDelaySeconds: 10
           periodSeconds: 10
           timeoutSeconds: 10
@@ -70,6 +82,9 @@ spec:
           httpGet:
             path: /
             port: 9200 
+            httpHeaders:
+            - name: Authorization
+              value: Basic ZWxhc3RpYzppbmZpbmlfcmFnX2Zsb3c=
           initialDelaySeconds: 30
           periodSeconds: 10
           timeoutSeconds: 10
