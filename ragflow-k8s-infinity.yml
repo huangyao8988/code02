@@ -85,6 +85,13 @@ spec:
       labels:
         app: infinity
     spec:
+      initContainers:
+      - name: fix-data-permission
+        image: busybox:1.35
+        command: ['sh', '-c', 'chown -R 1000:1000 /usr/share/opensearch/data']
+        volumeMounts:
+        - name: opensearch-data
+          mountPath: /usr/share/opensearch/data
       containers:
       - name: infinity
         image: infiniflow/infinity:v0.6.0-dev3
@@ -115,17 +122,23 @@ spec:
         - name: data-volume
           mountPath: /var/infinity
         livenessProbe:
-          httpGet:
-            path: /admin/node/current
-            port: http
-          initialDelaySeconds: 30
+          exec:  
+            command:
+              - "sh"
+              - "-c"
+              - "curl -s -k -u admin:$OPENSEARCH_PASSWORD http://localhost:9201"
+          initialDelaySeconds: 180  # 建议延长初始化时间
           periodSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /admin/node/current
-            port: http
-          initialDelaySeconds: 5
+          timeoutSeconds: 5
+        readinessProbe:  # 修正后的探针
+          exec:
+            command:
+            - "sh"
+            - "-c"
+            - "curl -k -u admin:$OPENSEARCH_PASSWORD http://localhost:9201"
+          initialDelaySeconds: 60
           periodSeconds: 10
+          timeoutSeconds: 5
       volumes:
       - name: config-volume
         configMap:
@@ -134,7 +147,11 @@ spec:
           - key: infinity_conf.toml
             path: infinity_conf.toml
       securityContext:
-        fsGroup: 1000  # Ensure write permissions to volumes
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000  # 新增此行确保文件组权限
+        runAsNonRoot: true
+        allowPrivilegeEscalation: false
   volumeClaimTemplates:
   - metadata:
       name: data-volume
