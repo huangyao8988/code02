@@ -131,8 +131,10 @@ spec:
           mountPath: /usr/share/opensearch/data
         resources:
           limits:
+            cpu: "4"
             memory: "8073741824"  # 从 .env 的 MEM_LIMIT
           requests:
+            cpu: "1"
             memory: "8073741824"
         livenessProbe:
           command:
