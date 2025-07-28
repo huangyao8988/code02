@@ -5,7 +5,7 @@ metadata:
   labels:
     app: sandbox-executor-manager
 spec:
-  replicas: 1  # 通常由 SANDBOX_EXECUTOR_MANAGER_POOL_SIZE 控制，但K8s中推荐通过replicas管理
+  replicas: 1
   selector:
     matchLabels:
       app: sandbox-executor-manager
@@ -15,61 +15,58 @@ spec:
         app: sandbox-executor-manager
     spec:
       containers:
-      - name: sandbox-executor-manager
-        image: infiniflow/sandbox-executor-manager:latest  # 默认镜像，实际应从环境变量获取
-        imagePullPolicy: Always
-        ports:
-        - containerPort: 9385
-        env:
-        - name: TZ
-          value: "Asia/Shanghai"  # 从.env中的TIMEZONE获取
-        - name: SANDBOX_EXECUTOR_MANAGER_POOL_SIZE
-          value: "3"  # 默认值
-        - name: SANDBOX_BASE_PYTHON_IMAGE
-          value: "infiniflow/sandbox-base-python:latest"
-        - name: SANDBOX_BASE_NODEJS_IMAGE
-          value: "infiniflow/sandbox-base-nodejs:latest"
-        - name: SANDBOX_ENABLE_SECCOMP
-          value: "false"
-        - name: SANDBOX_MAX_MEMORY
-          value: "256m"
-        - name: SANDBOX_TIMEOUT
-          value: "10s"
-        - name: SANDBOX_ENABLED  # 来自.env建议配置
-          value: "1"
-        - name: SANDBOX_HOST
-          value: "sandbox-executor-manager"
-        volumeMounts:
-        - name: docker-sock
-          mountPath: /var/run/docker.sock
-        readinessProbe:  # 健康检查转换
-          exec:
-            command:
-            - curl
-            - http://localhost:9385/healthz
-          initialDelaySeconds: 10
-          periodSeconds: 10
-          timeoutSeconds: 5
-          failureThreshold: 5
-        securityContext:
-          allowPrivilegeEscalation: false
-          privileged: false
+        - name: sandbox-executor-manager
+          image: infiniflow/sandbox-executor-manager:latest
+          ports:
+            - containerPort: 9385
+          envFrom:
+            - configMapRef:
+                name: sandbox-env-config
+          volumeMounts:
+            - name: docker-sock
+              mountPath: /var/run/docker.sock
+          securityContext:
+            privileged: true
+            allowPrivilegeEscalation: false
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 9385
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 5
       volumes:
-      - name: docker-sock
-        hostPath:
-          path: /var/run/docker.sock
-      restartPolicy: Always  # K8s中Always对应on-failure逻辑
+        - name: docker-sock
+          hostPath:
+            path: /var/run/docker.sock
+            type: Socket
+      restartPolicy: OnFailure
 
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: sandbox-executor-manager
+  name: sandbox-executor-manager-service
 spec:
   selector:
     app: sandbox-executor-manager
   ports:
     - protocol: TCP
-      port: 9385  # 服务端口
-      targetPort: 9385  # 容器端口
-  type: ClusterIP  # 默认内部访问，如需外部访问可改为NodePort/LoadBalancer
+      port: 9385
+      targetPort: 9385
+  type: ClusterIP
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sandbox-env-config
+data:
+  TZ: "Asia/Shanghai"
+  SANDBOX_EXECUTOR_MANAGER_POOL_SIZE: "3"
+  SANDBOX_BASE_PYTHON_IMAGE: "infiniflow/sandbox-base-python:latest"
+  SANDBOX_BASE_NODEJS_IMAGE: "infiniflow/sandbox-base-nodejs:latest"
+  SANDBOX_ENABLE_SECCOMP: "false"
+  SANDBOX_MAX_MEMORY: "256m"
+  SANDBOX_TIMEOUT: "10s"
