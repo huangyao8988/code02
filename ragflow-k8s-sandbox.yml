@@ -26,14 +26,12 @@ spec:
           #  - name: docker-sock
           #    mountPath: /var/run/docker.sock
           securityContext:
-            # 关键修改：以 root 用户运行并添加必要权限
-            runAsUser: 0
-            runAsGroup: 0
-            privileged: false
-            allowPrivilegeEscalation: false
+            runAsUser: 1000  # 使用非 root 用户
+            runAsGroup: 1000
             capabilities:
-              add: ["SYS_ADMIN"]  # 添加必要权限
-              drop: ["NET_RAW"]    # 仅禁用高风险权限（非必须）
+              drop: ["ALL"]  # 移除所有高危权限
+            seccompProfile:
+              type: RuntimeDefault  # 启用默认 seccomp 过滤
           readinessProbe:
             httpGet:
               path: /healthz
