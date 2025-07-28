@@ -40,9 +40,32 @@ spec:
       labels:
         app: ragflow-mysql
     spec:
+      # === 新增安全上下文 ===
+      securityContext:
+        runAsUser: 999  # MySQL镜像默认UID
+        runAsGroup: 999
+        fsGroup: 999    # 确保挂载卷获得正确权限
+        fsGroupChangePolicy: "OnRootMismatch"
+      # === 新增初始化容器 ===
+      initContainers:
+      - name: fix-data-dir-permissions
+        image: busybox
+        command: ["sh", "-c", "chown -R 999:999 /var/lib/mysql"]
+        volumeMounts:
+        - name: mysql-data
+          mountPath: /var/lib/mysql
       containers:
       - name: mysql
         image: mysql:8.0.39
+        # === 容器级安全上下文 ===
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: ["ALL"]
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          seccompProfile:
+            type: RuntimeDefault
         env:
         - name: MYSQL_ROOT_PASSWORD
           valueFrom:
