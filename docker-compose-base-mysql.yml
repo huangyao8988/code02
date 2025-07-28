@@ -1,0 +1,32 @@
+services:
+  mysql:
+    # mysql:5.7 linux/arm64 image is unavailable.
+    image: mysql:8.0.39
+    container_name: ragflow-mysql
+    env_file: .env
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_PASSWORD}
+      - TZ=${TIMEZONE}
+    command:
+      --max_connections=1000
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+      --default-authentication-plugin=mysql_native_password
+      --tls_version="TLSv1.2,TLSv1.3"
+      --init-file /data/application/init.sql
+      --binlog_expire_logs_seconds=604800
+    ports:
+      - ${MYSQL_PORT}:3306
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init.sql:/data/application/init.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-uroot", "-p${MYSQL_PASSWORD}"]
+      interval: 10s
+      timeout: 10s
+      retries: 3
+    restart: on-failure
+
+volumes:
+  mysql_data:
+    driver: local
