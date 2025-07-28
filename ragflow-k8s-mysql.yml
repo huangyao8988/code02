@@ -61,7 +61,7 @@ spec:
         - "--collation-server=utf8mb4_unicode_ci"
         - "--default-authentication-plugin=mysql_native_password"
         - "--tls_version=TLSv1.2,TLSv1.3"
-        - "--init-file=/docker-entrypoint-initdb.d/init.sql"
+        #- "--init-file=/docker-entrypoint-initdb.d/init.sql"
         - "--binlog_expire_logs_seconds=604800"
         ports:
         - containerPort: 3306
@@ -70,6 +70,17 @@ spec:
           mountPath: /var/lib/mysql
         - name: init-script
           mountPath: /docker-entrypoint-initdb.d
+        readinessProbe:
+          exec:
+            command:
+            - mysqladmin
+            - ping
+            - "-uroot"
+            - "-p$(MYSQL_ROOT_PASSWORD)"
+          initialDelaySeconds: 100
+          periodSeconds: 10
+          timeoutSeconds: 10
+          failureThreshold: 120
         livenessProbe:
           exec:
             command:
