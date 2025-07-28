@@ -22,14 +22,18 @@ spec:
           envFrom:
             - configMapRef:
                 name: sandbox-env-config
-          volumeMounts:
-            - name: docker-sock
-              mountPath: /var/run/docker.sock
+          #volumeMounts:
+          #  - name: docker-sock
+          #    mountPath: /var/run/docker.sock
           securityContext:
-            privileged: false  # 避免特权模式
+            # 关键修改：以 root 用户运行并添加必要权限
+            runAsUser: 0
+            runAsGroup: 0
+            privileged: false
             allowPrivilegeEscalation: false
             capabilities:
-              drop: ["ALL"]  # 禁用所有权限
+              add: ["SYS_ADMIN"]  # 添加必要权限
+              drop: ["NET_RAW"]    # 仅禁用高风险权限（非必须）
           readinessProbe:
             httpGet:
               path: /healthz
@@ -45,11 +49,11 @@ spec:
             requests:
               cpu: "0.5"
               memory: "4Gi"
-      volumes:
-        - name: docker-sock
-          hostPath:
-            path: /var/run/docker.sock
-            type: Socket
+      #volumes:
+      #  - name: docker-sock
+      #    hostPath:
+      #      path: /var/run/docker.sock
+      #      type: Socket
       restartPolicy: Always
 
 ---
