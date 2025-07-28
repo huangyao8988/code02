@@ -47,13 +47,13 @@ spec:
         fsGroup: 999    # 确保挂载卷获得正确权限
         fsGroupChangePolicy: "OnRootMismatch"
       # === 新增初始化容器 ===
-      initContainers:
-      - name: fix-data-dir-permissions
-        image: busybox
-        command: ["sh", "-c", "chown -R 999:999 /var/lib/mysql"]
-        volumeMounts:
-        - name: mysql-data
-          mountPath: /var/lib/mysql
+      #initContainers:
+      #- name: fix-data-dir-permissions
+      #  image: busybox
+      #  command: ["sh", "-c", "chown -R 999:999 /var/lib/mysql"]
+      #  volumeMounts:
+      #  - name: mysql-data
+      #    mountPath: /var/lib/mysql
       containers:
       - name: mysql
         image: mysql:8.0.39
