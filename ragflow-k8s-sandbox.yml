@@ -50,7 +50,7 @@ spec:
           hostPath:
             path: /var/run/docker.sock
             type: Socket
-      restartPolicy: OnFailure
+      restartPolicy: Always
 
 ---
 apiVersion: v1
