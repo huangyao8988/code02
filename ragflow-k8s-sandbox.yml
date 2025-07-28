@@ -26,8 +26,10 @@ spec:
             - name: docker-sock
               mountPath: /var/run/docker.sock
           securityContext:
-            privileged: true
+            privileged: false  # 避免特权模式
             allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]  # 禁用所有权限
           readinessProbe:
             httpGet:
               path: /healthz
@@ -36,6 +38,13 @@ spec:
             periodSeconds: 10
             timeoutSeconds: 5
             failureThreshold: 5
+          resources:
+            limits:
+              cpu: "2"
+              memory: "8Gi"  # 从 .env 的 MEM_LIMIT
+            requests:
+              cpu: "0.5"
+              memory: "4Gi"
       volumes:
         - name: docker-sock
           hostPath:
