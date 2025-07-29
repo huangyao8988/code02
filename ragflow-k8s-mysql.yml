@@ -50,9 +50,14 @@ spec:
       initContainers:
       - name: fix-data-dir-permissions
         image: busybox
-        command: ["sh", "-c", "chown -R mysql:mysql /var/lib/mysql"]  # 修改为 mysql:mysql
-        securityContext:  # 添加专属安全上下文
-          runAsUser: 0    # root用户  
+        command: ["sh", "-c", "chown -R 999:999 /var/lib/mysql"]  # 使用 UID/GID
+        securityContext:
+          runAsUser: 0
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: ["ALL"]
+          seccompProfile:
+            type: RuntimeDefault
         volumeMounts:
         - name: mysql-data
           mountPath: /var/lib/mysql
