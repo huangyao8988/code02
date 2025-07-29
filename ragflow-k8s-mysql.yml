@@ -50,7 +50,7 @@ spec:
       initContainers:
       - name: fix-data-dir-permissions
         image: busybox
-        command: ["sh", "-c", "chown -R 999:999 /var/lib/mysql"]
+        command: ["sh", "-c", "chown -R mysql:mysql /var/lib/mysql"]  # 修改为 mysql:mysql
         securityContext:  # 添加专属安全上下文
           runAsUser: 0    # root用户  
         volumeMounts:
