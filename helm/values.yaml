@@ -34,10 +34,10 @@ env:
 
   # The RAGFlow Docker image to download.
   # Defaults to the v0.19.1-slim edition, which is the RAGFlow Docker image without embedding models.
-  RAGFLOW_IMAGE: infiniflow/ragflow:v0.19.1-slim
+  #RAGFLOW_IMAGE: infiniflow/ragflow:v0.19.1-slim #此处进行了调整
   #
   # To download the RAGFlow Docker image with embedding models, uncomment the following line instead:
-  # RAGFLOW_IMAGE: infiniflow/ragflow:v0.19.1
+  RAGFLOW_IMAGE: infiniflow/ragflow:v0.19.1 #此处进行了调整
   #
   # The Docker image of the v0.19.1 edition includes:
   # - Built-in embedding models:
@@ -61,7 +61,7 @@ env:
   TIMEZONE: "Asia/Shanghai"
 
   # Uncomment the following line if you have limited access to huggingface.co:
-  # HF_ENDPOINT: https://hf-mirror.com
+  HF_ENDPOINT: https://hf-mirror.com #此处进行了调整
 
   # The maximum file size for each uploaded file, in bytes.
   # You can uncomment this line and update the value if you wish to change 128M file size limit
@@ -202,7 +202,7 @@ redis:
 # This block is for setting up web service ingress. For more information, see:
 # https://kubernetes.io/docs/concepts/services-networking/ingress/
 ingress:
-  enabled: false
+  enabled: true #此处进行了调整
   className: ""
   annotations: {}
     # kubernetes.io/ingress.class: nginx
