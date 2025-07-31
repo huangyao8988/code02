@@ -7,7 +7,7 @@ data:
   node.name: "es01"
   bootstrap.memory_lock: "false"
   discovery.type: "single-node"
-  xpack.security.enabled: "true"
+  xpack.security.enabled: "false" #此处进行了调整
   xpack.security.http.ssl.enabled: "false"
   xpack.security.transport.ssl.enabled: "false"
   cluster.routing.allocation.disk.watermark.low: 5gb
