@@ -102,6 +102,12 @@ ragflow:
   deployment:
     strategy:
     resources:
+      limits:
+        memory: "1Gi"   # 内存限制设为 1GB
+        cpu: "1"        # CPU 限制设为 1 核
+      requests:
+        memory: "100Mi"   # 内存请求设为 1GB
+        cpu: "100m"     # CPU 请求设为 0.5 核
   service:
     # Use LoadBalancer to expose the web interface externally
     type: ClusterIP
@@ -120,6 +126,12 @@ infinity:
   deployment:
     strategy:
     resources:
+      limits:
+        memory: "8Gi"   # 内存限制设为 1GB
+        cpu: "2"        # CPU 限制设为 1 核
+      requests:
+        memory: "800Mi"   # 内存请求设为 1GB
+        cpu: "200m"     # CPU 请求设为 0.5 核
   service:
     type: ClusterIP
 
@@ -162,6 +174,12 @@ minio:
   deployment:
     strategy:
     resources:
+      limits:
+        memory: "1Gi"   # 内存限制设为 1GB
+        cpu: "1"        # CPU 限制设为 1 核
+      requests:
+        memory: "100Mi"   # 内存请求设为 1GB
+        cpu: "100m"     # CPU 请求设为 0.5 核
   service:
     type: ClusterIP
 
@@ -175,6 +193,12 @@ mysql:
   deployment:
     strategy:
     resources:
+      limits:
+        memory: "2Gi"   # 内存限制设为 1GB
+        cpu: "1"        # CPU 限制设为 1 核
+      requests:
+        memory: "200Mi"   # 内存请求设为 1GB
+        cpu: "100m"     # CPU 请求设为 0.5 核
   service:
     type: ClusterIP
 
