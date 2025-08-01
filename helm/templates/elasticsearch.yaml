@@ -57,7 +57,9 @@ spec:
       - name: sysctl
         image: busybox
         securityContext:
-          privileged: true
+          # 修改点 1：移除 sysctl 容器的特权模式
+          #privileged: true
+          privileged: false # 显式禁用特权模式
           runAsUser: 0
         command: ["sysctl", "-w", "vm.max_map_count=262144"]
       containers:
@@ -81,9 +83,10 @@ spec:
           {{- . | toYaml | nindent 10 }}
         {{- end }}
         securityContext:
-          capabilities:
-            add:
-              - "IPC_LOCK"
+          # 修改点 2：移除 elasticsearch 容器的 IPC_LOCK 能力
+          #capabilities:  
+          #  add:
+          #    - "IPC_LOCK"
           runAsUser: 1000
           # NOTE: fsGroup doesn't seem to
           # work so use init container instead
