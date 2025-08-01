@@ -103,11 +103,11 @@ ragflow:
     strategy:
     resources:
       limits:
-        memory: "1Gi"   # 内存限制设为 1GB
-        cpu: "1"        # CPU 限制设为 1 核
+        memory: "4Gi"   # 内存限制设为 1GB
+        cpu: "2"        # CPU 限制设为 1 核
       requests:
-        memory: "100Mi"   # 内存请求设为 1GB
-        cpu: "100m"     # CPU 请求设为 0.5 核
+        memory: "2Gi"   # 内存请求设为 1GB
+        cpu: "500m"     # CPU 请求设为 0.5 核
   service:
     # Use LoadBalancer to expose the web interface externally
     type: ClusterIP
