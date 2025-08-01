@@ -142,9 +142,12 @@ elasticsearch:
   deployment:
     strategy:
     resources:
+      limits:
+        memory: "16Gi"   # 内存限制设为 1GB
+        cpu: "4"        # CPU 限制设为 1 核
       requests:
-        cpu: "4"
-        memory: "16Gi"
+        memory: "8Gi"   # 内存请求设为 1GB
+        cpu: "2"     # CPU 请求设为 0.5 核
   service:
     type: ClusterIP
 
