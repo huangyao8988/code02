@@ -64,7 +64,7 @@ spec:
       #  command: ["sysctl", "-w", "vm.max_map_count=262144"]
       containers:
       - name: elasticsearch
-        image: elasticsearch:{{ .Values.env.STACK_VERSION }}
+        image: docker.m.daocloud.io/elasticsearch:{{ .Values.env.STACK_VERSION }}
         envFrom:
           - secretRef:
               name: {{ include "ragflow.fullname" . }}-env-config
