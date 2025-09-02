@@ -46,7 +46,7 @@ spec:
     spec:
       initContainers:
       - name: fix-data-volume-permissions
-        image: alpine
+        image: docker.m.daocloud.io/alpine
         command:
         - sh
         - -c
