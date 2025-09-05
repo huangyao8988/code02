@@ -65,7 +65,7 @@ env:
 
   # The maximum file size for each uploaded file, in bytes.
   # You can uncomment this line and update the value if you wish to change 128M file size limit
-  # MAX_CONTENT_LENGTH: "134217728"
+  MAX_CONTENT_LENGTH: "134217728"
   # After making the change, ensure you update `client_max_body_size` in nginx/nginx.conf correspondingly.
 
   # The number of document chunks processed in a single batch during document parsing.
