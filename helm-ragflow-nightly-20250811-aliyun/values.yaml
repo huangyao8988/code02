@@ -232,6 +232,7 @@ ingress:
   enabled: true
   className: ""
   annotations: {}
+    nginx.ingress.kubernetes.io/proxy-body-size: "256m"
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   hosts:
