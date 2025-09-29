@@ -1,0 +1,312 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: '28'
+    meta.helm.sh/release-name: ragflow01
+    meta.helm.sh/release-namespace: default
+  creationTimestamp: '2025-09-02T05:46:44Z'
+  generation: 32
+  labels:
+    app.kubernetes.io/component: ragflow
+    app.kubernetes.io/instance: ragflow01
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: ragflow
+    app.kubernetes.io/version: dev
+    helm.sh/chart: ragflow-0.1.0
+  managedFields:
+    - apiVersion: apps/v1
+      fieldsType: FieldsV1
+      fieldsV1:
+        'f:spec':
+          'f:replicas': {}
+      manager: kubectl.exe
+      operation: Update
+      subresource: scale
+    - apiVersion: apps/v1
+      fieldsType: FieldsV1
+      fieldsV1:
+        'f:metadata':
+          'f:annotations':
+            .: {}
+            'f:meta.helm.sh/release-name': {}
+            'f:meta.helm.sh/release-namespace': {}
+          'f:labels':
+            .: {}
+            'f:app.kubernetes.io/component': {}
+            'f:app.kubernetes.io/instance': {}
+            'f:app.kubernetes.io/managed-by': {}
+            'f:app.kubernetes.io/name': {}
+            'f:app.kubernetes.io/version': {}
+            'f:helm.sh/chart': {}
+        'f:spec':
+          'f:progressDeadlineSeconds': {}
+          'f:revisionHistoryLimit': {}
+          'f:selector': {}
+          'f:strategy':
+            'f:rollingUpdate':
+              .: {}
+              'f:maxSurge': {}
+              'f:maxUnavailable': {}
+            'f:type': {}
+          'f:template':
+            'f:metadata':
+              'f:annotations':
+                .: {}
+                'f:checksum/config-env': {}
+                'f:checksum/config-ragflow': {}
+              'f:labels':
+                .: {}
+                'f:app.kubernetes.io/component': {}
+                'f:app.kubernetes.io/instance': {}
+                'f:app.kubernetes.io/managed-by': {}
+                'f:app.kubernetes.io/name': {}
+                'f:app.kubernetes.io/version': {}
+                'f:helm.sh/chart': {}
+            'f:spec':
+              'f:containers':
+                'k:{"name":"ragflow"}':
+                  .: {}
+                  'f:envFrom': {}
+                  'f:imagePullPolicy': {}
+                  'f:name': {}
+                  'f:ports':
+                    .: {}
+                    'k:{"containerPort":80,"protocol":"TCP"}':
+                      .: {}
+                      'f:containerPort': {}
+                      'f:name': {}
+                      'f:protocol': {}
+                    'k:{"containerPort":9380,"protocol":"TCP"}':
+                      .: {}
+                      'f:containerPort': {}
+                      'f:name': {}
+                      'f:protocol': {}
+                  'f:resources':
+                    .: {}
+                    'f:limits': {}
+                    'f:requests': {}
+                  'f:terminationMessagePath': {}
+                  'f:terminationMessagePolicy': {}
+                  'f:volumeMounts':
+                    .: {}
+                    'k:{"mountPath":"/etc/nginx/conf.d/ragflow.conf"}':
+                      .: {}
+                      'f:mountPath': {}
+                      'f:name': {}
+                      'f:subPath': {}
+                    'k:{"mountPath":"/etc/nginx/nginx.conf"}':
+                      .: {}
+                      'f:mountPath': {}
+                      'f:name': {}
+                      'f:subPath': {}
+                    'k:{"mountPath":"/etc/nginx/proxy.conf"}':
+                      .: {}
+                      'f:mountPath': {}
+                      'f:name': {}
+                      'f:subPath': {}
+              'f:dnsPolicy': {}
+              'f:restartPolicy': {}
+              'f:schedulerName': {}
+              'f:securityContext': {}
+              'f:terminationGracePeriodSeconds': {}
+              'f:volumes':
+                .: {}
+                'k:{"name":"nginx-config-volume"}':
+                  .: {}
+                  'f:configMap':
+                    .: {}
+                    'f:defaultMode': {}
+                    'f:name': {}
+                  'f:name': {}
+      manager: helm
+      operation: Update
+      time: '2025-09-05T08:51:30Z'
+    - apiVersion: apps/v1
+      fieldsType: FieldsV1
+      fieldsV1:
+        'f:spec':
+          'f:template':
+            'f:spec':
+              'f:containers':
+                'k:{"name":"ragflow"}':
+                  'f:image': {}
+                  'f:resources':
+                    'f:limits':
+                      'f:cpu': {}
+                      'f:memory': {}
+                    'f:requests':
+                      'f:cpu': {}
+                      'f:memory': {}
+                  'f:volumeMounts':
+                    'k:{"mountPath":"/ragflow/web/dist/conf.json"}':
+                      .: {}
+                      'f:mountPath': {}
+                      'f:name': {}
+                      'f:subPath': {}
+                    'k:{"mountPath":"/ragflow/web/src/conf.json"}':
+                      .: {}
+                      'f:mountPath': {}
+                      'f:name': {}
+                      'f:subPath': {}
+              'f:volumes':
+                'k:{"name":"volume-1759130667973"}':
+                  .: {}
+                  'f:configMap':
+                    .: {}
+                    'f:defaultMode': {}
+                    'f:name': {}
+                  'f:name': {}
+                'k:{"name":"volume-1759132205861"}':
+                  .: {}
+                  'f:configMap':
+                    .: {}
+                    'f:defaultMode': {}
+                    'f:name': {}
+                  'f:name': {}
+      manager: OneConsole-App-CS
+      operation: Update
+      time: '2025-09-29T07:50:29Z'
+    - apiVersion: apps/v1
+      fieldsType: FieldsV1
+      fieldsV1:
+        'f:metadata':
+          'f:annotations':
+            'f:deployment.kubernetes.io/revision': {}
+        'f:status':
+          'f:availableReplicas': {}
+          'f:conditions':
+            .: {}
+            'k:{"type":"Available"}':
+              .: {}
+              'f:lastTransitionTime': {}
+              'f:lastUpdateTime': {}
+              'f:message': {}
+              'f:reason': {}
+              'f:status': {}
+              'f:type': {}
+            'k:{"type":"Progressing"}':
+              .: {}
+              'f:lastTransitionTime': {}
+              'f:lastUpdateTime': {}
+              'f:message': {}
+              'f:reason': {}
+              'f:status': {}
+              'f:type': {}
+          'f:observedGeneration': {}
+          'f:readyReplicas': {}
+          'f:replicas': {}
+          'f:updatedReplicas': {}
+      manager: kube-controller-manager
+      operation: Update
+      subresource: status
+      time: '2025-09-29T07:50:32Z'
+  name: ragflow01
+  namespace: default
+  resourceVersion: '5629399723'
+  uid: 3236c3fa-5688-4992-aa3d-2efbd120e9f5
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: ragflow
+      app.kubernetes.io/instance: ragflow01
+      app.kubernetes.io/name: ragflow
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        checksum/config-env: e960e41287fa496530bf878dfdc3561802d751107dc2071adbc3fa504fff7b5c
+        checksum/config-ragflow: c7fe7dd24bd8225f8a390417c4c886d098d1c1b25e6dfbf1065959f88c269b69
+      creationTimestamp: null
+      labels:
+        app.kubernetes.io/component: ragflow
+        app.kubernetes.io/instance: ragflow01
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: ragflow
+        app.kubernetes.io/version: dev
+        helm.sh/chart: ragflow-0.1.0
+    spec:
+      containers:
+        - envFrom:
+            - secretRef:
+                name: ragflow01-env-config
+          image: >-
+            crpi-lk0k4v9wxxdwsz3e-vpc.cn-hangzhou.personal.cr.aliyuncs.com/huangyao8988/ragflow:v0.20.5
+          imagePullPolicy: IfNotPresent
+          name: ragflow
+          ports:
+            - containerPort: 80
+              name: http
+              protocol: TCP
+            - containerPort: 9380
+              name: http-api
+              protocol: TCP
+          resources:
+            limits:
+              cpu: '4'
+              memory: 12000Mi
+            requests:
+              cpu: '4'
+              memory: 12000Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /etc/nginx/conf.d/ragflow.conf
+              name: nginx-config-volume
+              subPath: ragflow.conf
+            - mountPath: /etc/nginx/proxy.conf
+              name: nginx-config-volume
+              subPath: proxy.conf
+            - mountPath: /etc/nginx/nginx.conf
+              name: nginx-config-volume
+              subPath: nginx.conf
+            - mountPath: /ragflow/web/src/conf.json
+              name: volume-1759130667973
+              subPath: conf.json
+            - mountPath: /ragflow/web/dist/conf.json
+              name: volume-1759132205861
+              subPath: conf.json
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - configMap:
+            defaultMode: 420
+            name: nginx-config
+          name: nginx-config-volume
+        - configMap:
+            defaultMode: 420
+            name: my-frontend-config
+          name: volume-1759130667973
+        - configMap:
+            defaultMode: 420
+            name: my-frontend-config
+          name: volume-1759132205861
+status:
+  availableReplicas: 1
+  conditions:
+    - lastTransitionTime: '2025-09-29T01:10:07Z'
+      lastUpdateTime: '2025-09-29T01:10:07Z'
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: 'True'
+      type: Available
+    - lastTransitionTime: '2025-09-29T07:02:00Z'
+      lastUpdateTime: '2025-09-29T07:50:32Z'
+      message: ReplicaSet "ragflow01-5c6fdbc4f5" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: 'True'
+      type: Progressing
+  observedGeneration: 32
+  readyReplicas: 1
+  replicas: 1
+  updatedReplicas: 1
