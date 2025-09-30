@@ -2,11 +2,11 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
-    deployment.kubernetes.io/revision: '30'
+    deployment.kubernetes.io/revision: '33'
     meta.helm.sh/release-name: ragflow01
     meta.helm.sh/release-namespace: default
   creationTimestamp: '2025-09-02T05:46:44Z'
-  generation: 34
+  generation: 37
   labels:
     app.kubernetes.io/component: ragflow
     app.kubernetes.io/instance: ragflow01
@@ -130,6 +130,8 @@ metadata:
             'f:spec':
               'f:containers':
                 'k:{"name":"ragflow"}':
+                  'f:args': {}
+                  'f:command': {}
                   'f:image': {}
                   'f:resources':
                     'f:limits':
@@ -178,7 +180,7 @@ metadata:
                   'f:name': {}
       manager: OneConsole-App-CS
       operation: Update
-      time: '2025-09-29T09:22:24Z'
+      time: '2025-09-29T14:19:39Z'
     - apiVersion: apps/v1
       fieldsType: FieldsV1
       fieldsV1:
@@ -208,15 +210,14 @@ metadata:
           'f:observedGeneration': {}
           'f:readyReplicas': {}
           'f:replicas': {}
-          'f:unavailableReplicas': {}
           'f:updatedReplicas': {}
       manager: kube-controller-manager
       operation: Update
       subresource: status
-      time: '2025-09-29T09:22:24Z'
+      time: '2025-09-29T14:29:32Z'
   name: ragflow01
   namespace: default
-  resourceVersion: '5630056003'
+  resourceVersion: '5632243819'
   uid: 3236c3fa-5688-4992-aa3d-2efbd120e9f5
 spec:
   progressDeadlineSeconds: 600
@@ -247,31 +248,44 @@ spec:
         helm.sh/chart: ragflow-0.1.0
     spec:
       containers:
-        - envFrom:
+        - args:
+            - '-c'
+            - |
+              echo "启动脚本开始执行..."
+              echo "检查ConfigMap挂载..."
+              ls -la /config/ 2>/dev/null || echo "ConfigMap目录不存在，尝试其他路径..."
+              
+              # 尝试不同的可能路径
+              if [ -f /config/index.html ]; then
+                echo "找到ConfigMap文件在 /config/index.html"
+                cp /config/index.html /ragflow/web/dist/index.html
+                echo "文件复制完成"
+              elif [ -f /config ]; then
+                echo "ConfigMap被挂载为单个文件 /config"
+                cp /config /ragflow/web/dist/index.html
+                echo "文件复制完成"
+              else
+                echo "错误：无法找到ConfigMap文件"
+                echo "当前目录内容:"
+                ls -la /
+                echo "/config 路径状态:"
+                ls -la /config 2>/dev/null || echo "/config 不存在"
+              fi
+              
+              echo "验证修改结果:"
+              grep -E '<title>|og:title' /ragflow/web/dist/index.html || echo "无法读取目标文件"
+              
+              echo "启动原始应用..."
+              exec /ragflow/entrypoint.sh        
+          command:
+            - /bin/sh
+          envFrom:
             - secretRef:
                 name: ragflow01-env-config
           image: >-
             crpi-lk0k4v9wxxdwsz3e-vpc.cn-hangzhou.personal.cr.aliyuncs.com/huangyao8988/ragflow:v0.20.5
           imagePullPolicy: IfNotPresent
           name: ragflow
-          command: ["/bin/sh"]
-          args:
-          - -c
-          - |
-            echo "检查ConfigMap文件..."
-            ls -la /config/ 2>/dev/null || echo "ConfigMap目录不存在"
-            # 如果ConfigMap存在，则覆盖index.html
-            if [ -f /config/index.html ]; then
-              echo "应用自定义index.html..."
-              cp /config/index.html /ragflow/web/dist/index.html
-              echo "修改完成，验证结果:"
-              grep -E '<title>|og:title' /ragflow/web/dist/index.html
-            else
-              echo "错误：/config/index.html 不存在"
-              find /config -type f 2>/dev/null
-            fi
-            # 启动原始应用 - 使用正确的入口点脚本
-            exec /ragflow/entrypoint.sh          
           ports:
             - containerPort: 80
               name: http
@@ -306,7 +320,6 @@ spec:
               subPath: conf.json
             - mountPath: /config
               name: volume-1759134941116
-              subPath: index.html
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       schedulerName: default-scheduler
@@ -332,20 +345,19 @@ spec:
 status:
   availableReplicas: 1
   conditions:
-    - lastTransitionTime: '2025-09-29T01:10:07Z'
-      lastUpdateTime: '2025-09-29T01:10:07Z'
+    - lastTransitionTime: '2025-09-29T13:16:00Z'
+      lastUpdateTime: '2025-09-29T13:16:00Z'
       message: Deployment has minimum availability.
       reason: MinimumReplicasAvailable
       status: 'True'
       type: Available
-    - lastTransitionTime: '2025-09-29T08:46:43Z'
-      lastUpdateTime: '2025-09-29T09:22:24Z'
-      message: ReplicaSet "ragflow01-8595dc4844" is progressing.
-      reason: ReplicaSetUpdated
+    - lastTransitionTime: '2025-09-29T13:16:00Z'
+      lastUpdateTime: '2025-09-29T14:29:32Z'
+      message: ReplicaSet "ragflow01-7874974ff4" has successfully progressed.
+      reason: NewReplicaSetAvailable
       status: 'True'
       type: Progressing
-  observedGeneration: 34
+  observedGeneration: 37
   readyReplicas: 1
-  replicas: 2
-  unavailableReplicas: 1
+  replicas: 1
   updatedReplicas: 1
