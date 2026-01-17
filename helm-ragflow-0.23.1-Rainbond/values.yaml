@@ -61,7 +61,7 @@ env:
   TZ: "Asia/Shanghai"
 
   # Uncomment the following line if you have limited access to huggingface.co:
-  # HF_ENDPOINT: https://hf-mirror.com
+  HF_ENDPOINT: https://hf-mirror.com
 
   # The maximum file size for each uploaded file, in bytes.
   # You can uncomment this line and update the value if you wish to change 128M file size limit
