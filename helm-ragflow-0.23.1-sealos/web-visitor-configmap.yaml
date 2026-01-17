@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: web-visitor-nginx-config
+data:
+  default.conf: |
+    server {
+        listen 80 default_server;
+        server_name sbtlphdeilvf.sealosbja.site;
+
+        location / {
+            root /usr/share/nginx/html;
+            index index.html index.htm;
+        }
+    }
+
+    server {
+        listen 80;
+        server_name ragflow.sbtlphdeilvf.sealosbja.site;
+
+        location / {
+            proxy_pass http://ragflow01:80;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_http_version 1.1;
+            proxy_set_header Connection "";
+            proxy_buffering off;
+            proxy_read_timeout 3600s;
+            proxy_send_timeout 3600s;
+        }
+    }

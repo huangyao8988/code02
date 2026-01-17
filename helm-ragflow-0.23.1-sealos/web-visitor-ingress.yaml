@@ -1,0 +1,46 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: network-ehcnmaovftal
+  labels:
+    cloud.sealos.io/app-deploy-manager: web-visitor
+    cloud.sealos.io/app-deploy-manager-domain: sbtlphdeilvf
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/proxy-body-size: 32m
+    nginx.ingress.kubernetes.io/ssl-redirect: 'false'
+    nginx.ingress.kubernetes.io/backend-protocol: HTTP
+    nginx.ingress.kubernetes.io/client-body-buffer-size: 64k
+    nginx.ingress.kubernetes.io/proxy-buffer-size: 64k
+    nginx.ingress.kubernetes.io/proxy-send-timeout: '300'
+    nginx.ingress.kubernetes.io/proxy-read-timeout: '300'
+    nginx.ingress.kubernetes.io/server-snippet: |
+      client_header_buffer_size 64k;
+      large_client_header_buffers 4 128k;
+spec:
+  rules:
+    - host: sbtlphdeilvf.sealosbja.site
+      http:
+        paths:
+          - pathType: Prefix
+            path: /
+            backend:
+              service:
+                name: web-visitor-rkjmlbdavbnx
+                port:
+                  number: 80
+    - host: ragflow.sbtlphdeilvf.sealosbja.site
+      http:
+        paths:
+          - pathType: Prefix
+            path: /
+            backend:
+              service:
+                name: web-visitor-rkjmlbdavbnx
+                port:
+                  number: 80
+  tls:
+    - hosts:
+        - sbtlphdeilvf.sealosbja.site
+        - ragflow.sbtlphdeilvf.sealosbja.site
+      secretName: wildcard-cert
