@@ -83,7 +83,7 @@ data:
         keepalive_timeout  65;
 
         #gzip  on;
-        client_max_body_size 128M;
+        client_max_body_size 2048M;
 
         include /etc/nginx/conf.d/ragflow.conf;
     }
