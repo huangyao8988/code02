@@ -8,6 +8,8 @@ data:
         listen 80 default_server;
         server_name sbtlphdeilvf.sealosbja.site;
 
+        client_max_body_size 2048M;
+
         location / {
             root /usr/share/nginx/html;
             index index.html index.htm;
@@ -17,6 +19,8 @@ data:
     server {
         listen 80;
         server_name ragflow.sbtlphdeilvf.sealosbja.site;
+
+        client_max_body_size 2048M;
 
         location / {
             proxy_pass http://ragflow01:80;
