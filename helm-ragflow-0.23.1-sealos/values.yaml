@@ -107,8 +107,8 @@ ragflow:
     strategy:
     resources:
       limits:
-        memory: "8Gi"
-        cpu: "2"
+        memory: "32Gi"
+        cpu: "16"
       requests:
         memory: "2Gi"
         cpu: "500m"
